@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0e080d" />
+  <title>Something for you 🌸</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0e080d;
+      --surface:  #1f1119;
+      --border:   #2e1a29;
+      --text:     #fdf0f7;
+      --muted:    #9b7a94;
+      --soft:     #c9a8c0;
+      --rose:     #e8799a;
+      --blush:    #f7b8cc;
+      --gold:     #f5c97a;
+      --lavender: #c4aee8;
+      --mint:     #7adbc4;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* ── Ambient glows ── */
+    .bg-glow { position: fixed; border-radius: 50%; pointer-events: none; filter: blur(90px); z-index: 0; }
+    .bg-glow-1 { width:420px;height:420px; background:radial-gradient(circle,#e8799a,transparent 70%); top:-130px;left:-130px; opacity:0.3; animation:gd 14s ease-in-out infinite alternate; }
+    .bg-glow-2 { width:360px;height:360px; background:radial-gradient(circle,#c4aee8,transparent 70%); bottom:-110px;right:-110px; opacity:0.28; animation:gd 18s ease-in-out infinite alternate-reverse; }
+    .bg-glow-3 { width:260px;height:260px; background:radial-gradient(circle,#f5c97a,transparent 70%); top:50%;left:50%; transform:translate(-50%,-50%); opacity:0.09; animation:gp 9s ease-in-out infinite; }
+    @keyframes gd { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(35px,28px) scale(1.1)} }
+    @keyframes gp { 0%,100%{opacity:.07;transform:translate(-50%,-50%) scale(1)} 50%{opacity:.16;transform:translate(-50%,-50%) scale(1.2)} }
+
+    /* ── Stars ── */
+    #stars { position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden; }
+    .star { position:absolute;border-radius:50%;background:white;animation:twinkle ease-in-out infinite; }
+    @keyframes twinkle { 0%,100%{opacity:.08;transform:scale(1)} 50%{opacity:.75;transform:scale(1.5)} }
+
+    /* ── Screens ── */
+    .screen {
+      position:fixed;inset:0;z-index:1;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:2.5rem 1.75rem;text-align:center;
+      opacity:0;pointer-events:none;
+      transition:opacity 0.65s cubic-bezier(.4,0,.2,1);
+      overflow-y:auto;
+    }
+    .screen.active  { opacity:1;pointer-events:all; }
+    .screen.exit    { opacity:0;transition:opacity 0.4s ease; }
+
+    /* ── Typography ── */
+    .script { font-family:'Playfair Display',serif;font-style:italic;font-weight:400; }
+    h1 { font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(2.2rem,9vw,4rem);line-height:1.1;letter-spacing:-0.01em; }
+    h2 { font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.5rem,6vw,2.4rem);line-height:1.2; }
+    .eyebrow { font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--rose);margin-bottom:.75rem; }
+    .subtitle { font-size:clamp(.95rem,3.8vw,1.15rem);color:var(--soft);line-height:1.7;margin-top:.75rem; }
+    .divider { width:40px;height:1.5px;background:linear-gradient(90deg,transparent,var(--rose),transparent);margin:1.25rem auto; }
+
+    /* ── Fade-up ── */
+    .fade-up { opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1); }
+    .fade-up.in { opacity:1;transform:translateY(0); }
+
+    /* ── Buttons ── */
+    .btn {
+      display:inline-flex;align-items:center;gap:.5rem;
+      margin-top:2rem;padding:.9rem 2.2rem;
+      background:linear-gradient(135deg,var(--rose),#d4609f);
+      color:#fff;border:none;border-radius:100px;
+      font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;
+      cursor:pointer;box-shadow:0 4px 24px rgba(232,121,154,.35);
+      transition:transform .15s ease,box-shadow .15s ease;
+      -webkit-appearance:none;letter-spacing:.01em;
+    }
+    .btn:active { transform:scale(.95); }
+    .btn:hover  { transform:scale(1.04);box-shadow:0 6px 32px rgba(232,121,154,.5); }
+    .btn-soft { background:var(--surface);color:var(--text);border:1px solid var(--border);box-shadow:none; }
+    .btn-soft:hover { border-color:var(--rose);box-shadow:0 0 16px rgba(232,121,154,.18); }
+
+    /* ════════════════════════
+       S1 — WELCOME
+    ════════════════════════ */
+    #s1 .big-emoji { font-size:3.5rem;display:block;margin-bottom:1.5rem;animation:floatEmoji 3s ease-in-out infinite; }
+    @keyframes floatEmoji { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-10px) rotate(3deg)} }
+
+    /* ════════════════════════
+       S2 — LOADING (redesigned)
+    ════════════════════════ */
+    #s2 { justify-content:center;gap:0;padding:2rem 1.5rem; }
+
+    /* Progress ring */
+    .ring-wrap { position:relative;width:180px;height:180px;margin:0 auto; flex-shrink:0; }
+    .ring-wrap svg { position:absolute;inset:0; }
+    .ring-center {
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+    }
+    .pct-num {
+      font-size:2.6rem;font-weight:800;font-variant-numeric:tabular-nums;
+      background:linear-gradient(135deg,var(--rose),var(--gold));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      transition:transform .1s ease;
+      line-height:1;
+    }
+    .pct-num.blast { animation:numBlast .5s ease forwards; }
+    @keyframes numBlast {
+      0%{transform:scale(1)}
+      40%{transform:scale(1.5);filter:brightness(2)}
+      100%{transform:scale(1.2)}
+    }
+    .pct-label { font-size:.65rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-top:.2rem; }
+
+    /* Ring stroke */
+    #ring-track { stroke:var(--border); }
+    #ring-fill {
+      stroke:url(#ringGrad);
+      stroke-dasharray:408;
+      stroke-dashoffset:408;
+      stroke-linecap:round;
+      transform:rotate(-90deg);
+      transform-origin:center;
+      transition:stroke-dashoffset .25s ease;
+      filter:drop-shadow(0 0 6px rgba(232,121,154,.5));
+    }
+    #ring-fill.overflow { stroke:url(#ringGold); filter:drop-shadow(0 0 12px rgba(245,201,122,.7)); }
+
+    /* Message display — one at a time, typewriter */
+    .msg-display-wrap {
+      width:90vw;max-width:480px;
+      margin:1.75rem auto 0;
+      min-height:70px;
+      display:flex;align-items:center;justify-content:center;
+      overflow:visible;
+    }
+    .msg-display {
+      white-space:nowrap;
+      text-align:center;
+      font-family:'Playfair Display',serif;
+      font-style:italic;
+      font-size:clamp(.78rem,3.2vw,.96rem);
+      line-height:1.5;
+      color:var(--soft);
+      transition:opacity .4s ease, transform .4s ease;
+    }
+    .msg-display.ok   { color:var(--mint); }
+    .msg-display.warn { color:var(--gold); }
+    .msg-display.err  { color:var(--rose); }
+    .type-char {
+      display:inline-block;
+      animation:charBounce .28s cubic-bezier(.34,1.3,.64,1) forwards;
+    }
+    @keyframes charBounce {
+      0%  { transform:translateY(-8px) scale(1.3); opacity:0; }
+      60% { transform:translateY(1px) scale(.96); opacity:1; }
+      100%{ transform:translateY(0) scale(1); opacity:1; }
+    }
+    .type-cursor {
+      display:inline-block;
+      color:var(--rose);
+      font-weight:100;
+      margin-left:1px;
+      animation:cursorBlink .7s ease-in-out infinite;
+    }
+    @keyframes cursorBlink {
+      0%,100%{ opacity:1; }
+      50%    { opacity:0; }
+    }
+    .msg-sub {
+      font-size:.8em;
+      color:var(--muted);
+      font-style:italic;
+      margin-top:.3rem;
+    }
+
+    /* Ring shake levels — smooth progression */
+    .ring-wrap.shake-slow { animation:shakeSlow 1s ease-in-out infinite; }
+    .ring-wrap.shake-med  { animation:shakeMed  .6s ease-in-out infinite; }
+    .ring-wrap.shake-hard { animation:shakeHard .38s ease-in-out infinite; }
+    @keyframes shakeSlow {
+      0%,100%{transform:translate(0,0) rotate(0deg)}
+      30%    {transform:translate(-2px,-1px) rotate(-.4deg)}
+      70%    {transform:translate(2px,1px) rotate(.4deg)}
+    }
+    @keyframes shakeMed {
+      0%,100%{transform:translate(0,0) rotate(0deg)}
+      25%    {transform:translate(-3px,-1.5px) rotate(-.7deg)}
+      65%    {transform:translate(3px,1.5px) rotate(.7deg)}
+    }
+    @keyframes shakeHard {
+      0%    {transform:translate(0,0) rotate(0deg)}
+      20%   {transform:translate(-3px,-2px) rotate(-.9deg)}
+      40%   {transform:translate(3px,2px) rotate(.9deg)}
+      60%   {transform:translate(-2px,2px) rotate(-.6deg)}
+      80%   {transform:translate(2px,-2px) rotate(.6deg)}
+      100%  {transform:translate(0,0) rotate(0deg)}
+    }
+
+    /* Burst overlay — full screen */
+    #burst-wrap {
+      position:fixed;inset:0;pointer-events:none;z-index:200;
+      overflow:hidden;
+      opacity:0;transition:opacity .2s ease;
+    }
+    #burst-wrap.show { opacity:1; }
+    .burst-particle {
+      position:absolute;
+      animation:burstFly ease-out forwards;
+    }
+    @keyframes burstFly {
+      0%   { opacity:1; transform:translate(0,0) scale(0) rotate(0deg); }
+      20%  { opacity:1; transform:translate(calc(var(--tx)*.3), calc(var(--ty)*.3)) scale(1.3) rotate(calc(var(--rot)*.3)); }
+      100% { opacity:0; transform:translate(var(--tx), var(--ty)) scale(.8) rotate(var(--rot)); }
+    }
+    /* The "24" reveal overlay */
+    #reveal-24 {
+      position:fixed;inset:0;z-index:300;pointer-events:none;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(14,8,13,0);
+      transition:background .5s ease, opacity .5s ease;
+      opacity:0;
+    }
+    #reveal-24.show { background:rgba(14,8,13,.88); opacity:1; }
+    #reveal-24.hide { opacity:0; }
+    .num-24 {
+      font-family:'Playfair Display',serif;
+      font-weight:700;
+      color:var(--rose);
+      text-shadow:0 0 60px rgba(232,121,154,.7),0 0 120px rgba(232,121,154,.4);
+      transform:scale(0);
+      transition:transform .65s cubic-bezier(.34,1.56,.64,1);
+      text-align:center;
+      line-height:1.1;
+    }
+    .num-24 .its-line {
+      display:block;
+      font-style:italic;
+      font-size:clamp(2.5rem,10vw,5rem);
+      letter-spacing:.08em;
+      opacity:.85;
+    }
+    .num-24 .age-line {
+      display:block;
+      font-size:clamp(7rem,28vw,13rem);
+      letter-spacing:-.02em;
+      line-height:.9;
+    }
+    #reveal-24.show .num-24 { transform:scale(1); }
+
+    /* ════════════════════════
+       S3 — BIRTHDAY REVEAL
+    ════════════════════════ */
+    .confetti-wrap { position:fixed;inset:0;pointer-events:none;z-index:50; }
+    .confetti-piece { position:absolute;top:-20px;animation:confettiFall linear forwards; }
+    @keyframes confettiFall {
+      0%  {transform:translateY(0) rotateZ(0deg) rotateX(0deg);opacity:1}
+      100%{transform:translateY(110vh) rotateZ(540deg) rotateX(360deg);opacity:0}
+    }
+    #s3 .hb-emoji-row { font-size:2.5rem;display:flex;justify-content:center;gap:.5rem;margin-bottom:.75rem; }
+    .reveal-body { margin-top:1.5rem;max-width:310px;font-size:clamp(.95rem,3.5vw,1.05rem);color:var(--soft);line-height:1.9; }
+    .reveal-body .line { display:block;opacity:0;transform:translateY(10px);transition:opacity .65s ease,transform .65s ease; }
+    .reveal-body .line.in { opacity:1;transform:translateY(0); }
+    .reveal-body .line.highlight { color:var(--text);font-family:'Playfair Display',serif;font-style:italic;font-size:1.05em; }
+
+    /* ════════════════════════
+       S4 — VIDEO
+    ════════════════════════ */
+    #s4 { justify-content:flex-start;padding-top:3rem;padding-bottom:3rem; }
+    #s4 h2 { margin-bottom:.35rem; }
+    #s4 .video-sub { font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;font-style:italic; }
+    .video-container {
+      width:100%;max-width:320px;border-radius:20px;overflow:hidden;
+      background:var(--surface);border:1px solid var(--border);
+      aspect-ratio:9/16;position:relative;
+      box-shadow:0 8px 48px rgba(232,121,154,.12);
+    }
+    .video-container video,.video-container iframe { width:100%;height:100%;object-fit:cover;border:none;display:block; }
+    .video-placeholder { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;color:var(--muted);font-size:.8rem; }
+    .video-placeholder .play-icon { font-size:2.5rem;opacity:.35; }
+
+    /* ════════════════════════
+       S5 — EASTER EGG (joke)
+    ════════════════════════ */
+    #s5 { gap:0; }
+    .joke-bubble { background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.5rem 1.75rem;max-width:320px;margin:0 auto;font-size:clamp(.95rem,3.5vw,1.05rem);line-height:1.75; }
+    .joke-bubble .bubble-emoji { font-size:2.5rem;display:block;margin-bottom:.75rem; }
+    #btn-next-s5   { display:none; }
+
+    /* ════════════════════════
+       S6 — RUNNING GUY
+    ════════════════════════ */
+    #s6 { gap:0; overflow:hidden; }
+    #s6 h2 { margin-bottom:.5rem; }
+    #s6 .sub { font-size:.85rem;color:var(--muted);font-style:italic;margin-bottom:2rem; }
+
+    /* ── Runner stage ── */
+    .runner-stage {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      height: 130px;
+      margin: 1rem 0 0.5rem;
+    }
+    /* The whole unit (guy + letter) slides slowly left → right */
+    .runner-unit {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+      position: absolute;
+      bottom: 8px;
+      animation: runSlowly 11s linear forwards;
+    }
+    @keyframes runSlowly {
+      0%   { left: -260px; }
+      100% { left: calc(100% + 20px); }
+    }
+
+    /* Bouncy run feel on the emoji */
+    .runner-emoji {
+      font-size: 3rem;
+      line-height: 1;
+      flex-shrink: 0;
+      animation: runBounce 0.45s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+    @keyframes runBounce {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50%      { transform: translateY(-6px) rotate(3deg); }
+    }
+
+    /* Paper letter held by runner */
+    .runner-letter {
+      width: 180px;
+      background: #fffaf5;
+      border-radius: 6px 6px 4px 4px;
+      padding: 0.65rem 0.75rem 0.5rem;
+      position: relative;
+      box-shadow: 2px 3px 12px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.8);
+      transform: rotate(-2deg);
+      flex-shrink: 0;
+    }
+    /* Folded top corner */
+    .runner-letter::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 18px; height: 18px;
+      background: linear-gradient(225deg, #e5d5c8 50%, #fffaf5 50%);
+      border-radius: 0 6px 0 0;
+    }
+    /* Ruled lines */
+    .runner-letter::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 6px;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 17px,
+        rgba(180,160,140,.25) 17px,
+        rgba(180,160,140,.25) 18px
+      );
+      pointer-events: none;
+    }
+    .letter-text {
+      position: relative;
+      z-index: 1;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #2a1a10;
+      line-height: 1.85;
+    }
+    .letter-text .letter-highlight { color: #c0392b; }
+    .letter-text .letter-small { font-size: 0.62rem; color: #6b4c3b; font-weight: 400; }
+
+    #btn-s6 { display:none; }
+
+    /* ════════════════════════
+       S7 — FINAL CARD
+    ════════════════════════ */
+    #s7 { gap:0; }
+    .final-card {
+      background:linear-gradient(145deg,var(--surface),#2a1424);
+      border:1px solid #3d1f36;
+      border-radius:24px;
+      padding:2rem 2rem;
+      max-width:460px;width:100%;
+      box-shadow:0 0 0 1px rgba(232,121,154,.08),0 8px 48px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .final-card .final-emoji { font-size:3rem;display:block;margin-bottom:1rem;animation:heartBeat 1.6s ease-in-out infinite; }
+    @keyframes heartBeat { 0%,100%{transform:scale(1)} 15%{transform:scale(1.28)} 30%{transform:scale(1)} 45%{transform:scale(1.14)} }
+    .final-card h2 { font-size:clamp(1.3rem,5.5vw,1.9rem);margin-bottom:1rem; }
+    .final-msg { font-size:clamp(.9rem,3.5vw,1rem);color:var(--soft);line-height:1.85;margin-bottom:1.5rem;text-align:center; }
+    .final-msg em { color:var(--blush);font-style:normal; }
+    .final-msg .signed { margin-top:1rem;display:block;color:var(--muted);font-size:.85rem;font-style:italic; }
+    .tag-line { display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;background:rgba(232,121,154,.1);border:1px solid rgba(232,121,154,.2);border-radius:100px;font-size:.75rem;color:var(--rose);margin-top:1.5rem;letter-spacing:.05em; }
+    .abuse-note { margin-top:.75rem;font-size:.72rem;color:#3d1f36;font-style:italic; }
+
+    /* ── Noise ── */
+    body::after { content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.28; }
+  </style>
+</head>
+<body>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-glow bg-glow-3"></div>
+<div id="stars"></div>
+
+<!-- burst overlay -->
+<div id="burst-wrap"></div>
+
+<!-- ══════════════════════════
+     S1 — WELCOME
+══════════════════════════ -->
+<section id="s1" class="screen active">
+  <span class="big-emoji fade-up">🌸</span>
+  <p class="eyebrow fade-up" style="transition-delay:.1s">hey, you 👀</p>
+  <h1 class="fade-up" style="transition-delay:.2s">You found<br><em class="script">something...</em></h1>
+  <div class="divider fade-up" style="transition-delay:.35s"></div>
+  <p class="subtitle fade-up" style="transition-delay:.45s">Someone put this together<br>just for you.</p>
+  <p class="fade-up" style="transition-delay:.55s;font-size:.85rem;color:var(--muted);margin-top:.5rem">Before you open it — are you ready?</p>
+  <button class="btn fade-up" style="transition-delay:.7s" onclick="goTo(2)">I'm ready ✨</button>
+</section>
+
+<!-- ══════════════════════════
+     S2 — LOADING
+══════════════════════════ -->
+<section id="s2" class="screen">
+  <p class="eyebrow fade-up">one sec...</p>
+  <h2 class="fade-up" style="transition-delay:.1s">Hold on...<br><em class="script">something is on the way</em> 👀</h2>
+  <p class="fade-up" style="transition-delay:.2s;font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;font-style:italic"></p>
+
+  <!-- Progress ring -->
+  <div class="ring-wrap fade-up" style="transition-delay:.3s">
+    <svg viewBox="0 0 140 140" width="180" height="180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#e8799a"/>
+          <stop offset="100%" stop-color="#f5c97a"/>
+        </linearGradient>
+        <linearGradient id="ringGold" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#f5c97a"/>
+          <stop offset="100%" stop-color="#fff"/>
+        </linearGradient>
+      </defs>
+      <circle id="ring-track" cx="70" cy="70" r="65" fill="none" stroke="var(--border)" stroke-width="7"/>
+      <circle id="ring-fill" cx="70" cy="70" r="65" fill="none" stroke="url(#ringGrad)" stroke-width="7"/>
+    </svg>
+    <div class="ring-center">
+      <div class="pct-num" id="pct">0%</div>
+      <div class="pct-label">effort</div>
+    </div>
+  </div>
+
+  <!-- Log entries stack -->
+  <div class="msg-display-wrap fade-up" style="transition-delay:.35s">
+    <div class="msg-display" id="msg-display"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     S3 — BIRTHDAY REVEAL
+══════════════════════════ -->
+<section id="s3" class="screen">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div class="hb-emoji-row fade-up">🎂 🤍 🎉</div>
+  <h1 class="fade-up" style="transition-delay:.2s">Happy<br><em class="script" style="color:var(--rose)">Birthday</em></h1>
+  <div class="divider fade-up" style="transition-delay:.35s"></div>
+  <div class="reveal-body fade-up" style="transition-delay:.45s">
+    <span class="line" id="rl1">A little moment,<br>made just for you.</span>
+    <span class="line" id="rl2" style="display:block;height:.5rem"></span>
+    <span class="line" id="rl3">Not perfect.<br>Not fancy.</span>
+    <span class="line" id="rl4" style="display:block;height:.5rem"></span>
+    <span class="line" id="rl5">Just us, being us.</span>
+    <span class="line" id="rl6" style="display:block;height:.5rem"></span>
+    <span class="line highlight" id="rl7">The laughs, the chaos,<br>and everything in between.</span>
+    <span class="line" id="rl8" style="display:block;height:.5rem"></span>
+    <span class="line" id="rl9">Ready to see it? 🤍</span>
+  </div>
+  <button class="btn fade-up" style="transition-delay:.6s;margin-top:2rem" onclick="goTo(4)">Are you ready? 🌸</button>
+</section>
+
+<!-- ══════════════════════════
+     S4 — VIDEO
+══════════════════════════ -->
+<section id="s4" class="screen">
+  <p class="eyebrow fade-up">your memory</p>
+  <h2 class="fade-up" style="transition-delay:.1s">The <em class="script">Moment</em> 🎥</h2>
+  <p class="video-sub fade-up" style="transition-delay:.2s">press play. try not to smile.</p>
+  <div class="video-container fade-up" style="transition-delay:.3s">
+    <!--
+      ─── HOW TO ADD YOUR VIDEO ───────────────────────────────
+      Option A — Local file (put video in same folder):
+        <video controls playsinline poster="thumb.jpg">
+          <source src="birthday.mp4" type="video/mp4">
+        </video>
+
+      Option B — Google Drive (Share → Anyone with link):
+        Get FILE_ID from share URL, then use:
+        <iframe src="https://drive.google.com/file/d/FILE_ID/preview" allowfullscreen></iframe>
+
+      Option C — YouTube unlisted:
+        <iframe src="https://www.youtube.com/embed/VIDEO_ID" allowfullscreen></iframe>
+
+      Delete the video-placeholder div below and replace with one of the above.
+      ─────────────────────────────────────────────────────────
+    -->
+    <div class="video-placeholder">
+      <span class="play-icon">🎬</span>
+      <span>Video goes here</span>
+    </div>
+  </div>
+  <button class="btn fade-up" style="transition-delay:.5s;margin-top:1.75rem" onclick="goTo(5)">There's more →</button>
+</section>
+
+<!-- ══════════════════════════
+     S5 — EASTER EGG (joke)
+══════════════════════════ -->
+<section id="s5" class="screen">
+  <p class="eyebrow fade-up">wait a second...</p>
+  <h2 class="fade-up" style="transition-delay:.1s">One <em class="script">more</em> thing 👀</h2>
+  <div class="divider fade-up" style="transition-delay:.2s"></div>
+
+  <div class="joke-bubble fade-up" style="transition-delay:.35s;margin-top:.5rem">
+    <span class="bubble-emoji">😭</span>
+    Remember when you said<br>I was doing <strong style="color:var(--rose)">admin abuse</strong>?
+  </div>
+
+  <button class="btn fade-up" id="btn-guess" style="transition-delay:.55s" onclick="goTo(6)">Guess what it was for? 👀</button>
+</section>
+
+<!-- ══════════════════════════
+     S6 — RUNNING GUY
+══════════════════════════ -->
+<section id="s6" class="screen">
+  <p class="eyebrow fade-up">the answer is...</p>
+  <h2 class="fade-up" style="transition-delay:.1s">Brace <em class="script">yourself</em> 💀</h2>
+
+  <!-- Runner animation — guy holding letter -->
+  <div class="runner-stage fade-up" style="transition-delay:.3s" id="runner-stage">
+    <div class="runner-unit" id="runner-unit">
+      <span class="runner-emoji">🏃‍♂️‍➡️</span>
+      <div class="runner-letter">
+        <div class="letter-text">
+          <span class="letter-highlight">this entire website</span><br>
+          is built using<br>
+          <span class="letter-highlight">abused Claude.</span><br>
+          <span class="letter-small">lol 😂</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn fade-up" id="btn-s6" style="margin-top:1.75rem" onclick="goTo(7)">See the last thing 🌸</button>
+</section>
+
+<!-- ══════════════════════════
+     S7 — FINAL CARD
+══════════════════════════ -->
+<section id="s7" class="screen">
+  <div class="final-card fade-up">
+    <span class="final-emoji">🤍</span>
+    <h2>For you, <em class="script" style="color:var(--rose)">always.</em> 🤍</h2>
+    <div class="divider" style="margin:1rem auto"></div>
+    <p class="final-msg">
+      Let's keep making memories,<br>
+      keep spending random moments together,<br>
+      keep being stupid,<br>
+      keep laughing at nonsense,<br>
+      keep fighting over the dumbest things,<br>
+      and keep cherishing every little moment.<br><br>
+      <em>Through the chaos, the jokes,<br>and everything in between...</em><br><br>
+      Because that's us. 🤍<br><br>
+      <em>Happy Birthday 🌸</em>
+    </p>
+  </div>
+  <div class="tag-line fade-up" style="transition-delay:.4s">✦ made with chaos &amp; care ✦</div>
+  <p class="fade-up" style="transition-delay:.55s;margin-top:.6rem;font-size:.72rem;color:#6b6b6b;font-style:italic">and a little admin abuse 💀</p>
+</section>
+
+<script>
+/* ── Stars ── */
+(function(){
+  const w = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.5+.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${Math.random()*4+2}s;animation-delay:${Math.random()*5}s;`;
+    w.appendChild(s);
+  }
+})();
+
+/* ── Fade-up ── */
+function animateIn(el){
+  el.querySelectorAll('.fade-up').forEach(e=>{
+    e.classList.remove('in');
+    const d=parseFloat(e.style.transitionDelay||'0')*1000;
+    setTimeout(()=>e.classList.add('in'),d+60);
+  });
+}
+
+/* ── Screen nav ── */
+let current=1;
+function goTo(n){
+  const from=document.getElementById('s'+current);
+  const to=document.getElementById('s'+n);
+  from.classList.add('exit');
+  setTimeout(()=>{
+    from.classList.remove('active','exit');
+    to.classList.add('active');
+    animateIn(to);
+    current=n;
+    if(n===2) startLoading();
+    if(n===3){ startConfetti(); scheduleRevealLines(); }
+    if(n===6) startRunner();
+  },420);
+}
+window.addEventListener('load',()=>animateIn(document.getElementById('s1')));
+
+/* ══════════════════════════
+   LOADING — smooth 0→120, ~60 seconds
+══════════════════════════ */
+const loadMessages = [
+  { text:"💭 Counting all the random ideas that somehow survived...", type:"warn", thresh:15 },
+  { text:"😂 Measuring the chaos levels involved...",                 type:"warn", thresh:35 },
+  { text:"🤍 Adding all the little things that made this special...", type:"ok",   thresh:55 },
+  { text:"💀 Checking if I overdid it again...",                      type:"err",  thresh:75 },
+  { text:"✅ Result: BARE MINIMUM.", sub:"Don't question the process 💀", type:"ok", thresh:100 },
+];
+
+const CIRC = 408; /* circumference of r=65 */
+
+/* ── Typewriter ── */
+function typeWrite(el, text, onDone, speed=42){
+  el.innerHTML='';
+  const chars = [...text]; // handles emoji correctly
+  const cursor = document.createElement('span');
+  cursor.className='type-cursor'; cursor.textContent='|';
+  el.appendChild(cursor);
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i<chars.length){
+      const s=document.createElement('span');
+      s.className='type-char';
+      s.textContent=chars[i]==' ' ? ' ' : chars[i];
+      el.insertBefore(s,cursor);
+      i++;
+    } else {
+      clearInterval(iv);
+      setTimeout(()=>{ cursor.remove(); if(onDone) onDone(); }, 400);
+    }
+  }, speed + Math.random()*18);
+}
+
+function showMessage(msg){
+  const display = document.getElementById('msg-display');
+  const colorMap = { ok:'var(--mint)', warn:'var(--gold)', err:'var(--rose)' };
+
+  // Fade out current content
+  display.style.opacity='0';
+  display.style.transform='translateY(-10px)';
+
+  setTimeout(()=>{
+    display.innerHTML='';
+    display.className='msg-display ' + msg.type;
+    display.style.color = colorMap[msg.type]||'var(--soft)';
+    display.style.opacity='1';
+    display.style.transform='translateY(0)';
+
+    const mainEl = document.createElement('div');
+    display.appendChild(mainEl);
+
+    typeWrite(mainEl, msg.text, ()=>{
+      if(msg.sub){
+        setTimeout(()=>{
+          const subEl=document.createElement('div');
+          subEl.className='msg-sub';
+          display.appendChild(subEl);
+          typeWrite(subEl, msg.sub, null, 32);
+        },300);
+      }
+    });
+  }, display.innerHTML ? 420 : 0);
+}
+
+function startLoading(){
+  const pctEl   = document.getElementById('pct');
+  const ringEl  = document.getElementById('ring-fill');
+  const ringWrap= document.querySelector('.ring-wrap');
+  document.getElementById('msg-display').innerHTML='';
+
+  let val=0;
+  const TOTAL=62000, TICK=50;
+  const INC=120/(TOTAL/TICK);
+  let msgIdx=0, blasted=false;
+
+  const iv=setInterval(()=>{
+    val=Math.min(120, val+INC);
+    const d=Math.floor(val);
+    pctEl.textContent=d+'%';
+
+    // Ring fill (clamp 100)
+    ringEl.style.strokeDashoffset=CIRC-(CIRC*Math.min(100,val)/100);
+    if(val>100 && !ringEl.classList.contains('overflow'))
+      ringEl.classList.add('overflow');
+
+    // Shake: slow 90→103, med 103→112, hard 112+
+    if(val>=112){
+      ringWrap.classList.remove('shake-slow','shake-med');
+      if(!ringWrap.classList.contains('shake-hard')) ringWrap.classList.add('shake-hard');
+    } else if(val>=103){
+      ringWrap.classList.remove('shake-slow','shake-hard');
+      if(!ringWrap.classList.contains('shake-med'))  ringWrap.classList.add('shake-med');
+    } else if(val>=90){
+      ringWrap.classList.remove('shake-med','shake-hard');
+      if(!ringWrap.classList.contains('shake-slow')) ringWrap.classList.add('shake-slow');
+    }
+
+    // Show messages one at a time
+    while(msgIdx<loadMessages.length && val>=loadMessages[msgIdx].thresh){
+      showMessage(loadMessages[msgIdx]);
+      msgIdx++;
+    }
+
+    if(val>=120 && !blasted){
+      blasted=true;
+      clearInterval(iv);
+      ringWrap.classList.remove('shake-slow','shake-med','shake-hard');
+      pctEl.classList.add('blast');
+      triggerBurst();
+    }
+  }, TICK);
+}
+
+function triggerBurst(){
+  const wrap  = document.getElementById('burst-wrap');
+  const vw    = window.innerWidth;
+  const vh    = window.innerHeight;
+  const emojis= ['🌸','🌸','🌸','🌸','🌸','🎉','🎉','🎉','🎈','🎈','🎈','🎈','⭐','⭐','✨','✨','💕','🎊','🎊','🌟','🌟','🎂'];
+  const colors= ['#e8799a','#f5c97a','#c4aee8','#7adbc4','#ffffff','#f7b8cc','#ffb3c6'];
+
+  wrap.innerHTML='';
+  wrap.classList.add('show');
+
+  // Emojis fly from center to fill entire screen
+  emojis.forEach((p,i)=>{
+    const el=document.createElement('div');
+    el.className='burst-particle';
+    el.textContent=p;
+    const sx=vw/2, sy=vh/2;
+    // target: spread across full viewport
+    const tx=(Math.random()*vw)-sx + (Math.random()-.5)*100;
+    const ty=(Math.random()*vh)-sy + (Math.random()-.5)*100;
+    const rot=(Math.random()-.5)*720;
+    const dur=1.2+Math.random()*.8;
+    const delay=Math.random()*.35;
+    const size=1.6+Math.random()*1.8;
+    el.style.cssText=`left:${sx}px;top:${sy}px;font-size:${size}rem;--tx:${tx}px;--ty:${ty}px;--rot:${rot}deg;animation-duration:${dur.toFixed(2)}s;animation-delay:${delay.toFixed(2)}s;`;
+    wrap.appendChild(el);
+  });
+
+  // Confetti strips rain across full screen
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div');
+    const sx=vw/2+(Math.random()-.5)*vw*.6;
+    const sy=vh/2+(Math.random()-.5)*vh*.6;
+    const tx=(Math.random()-.5)*vw;
+    const ty=(Math.random()-.5)*vh;
+    c.className='burst-particle';
+    c.style.cssText=`left:${sx}px;top:${sy}px;width:${5+Math.random()*9}px;height:${8+Math.random()*14}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:2px;--tx:${tx}px;--ty:${ty}px;--rot:${(Math.random()-.5)*720}deg;animation-duration:${(1.1+Math.random()*.7).toFixed(2)}s;animation-delay:${(Math.random()*.3).toFixed(2)}s;`;
+    wrap.appendChild(c);
+  }
+
+  // After particles peak (~1.2s) — fade in dark bg + "24"
+  setTimeout(()=>{
+    const overlay=document.createElement('div');
+    overlay.id='reveal-24';
+    overlay.innerHTML='<div class="num-24"><span class="its-line">it\'s</span><span class="age-line">24</span></div>';
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>overlay.classList.add('show')));
+
+    // Hold "24" for 1.2s then fade out and go to birthday
+    setTimeout(()=>{
+      overlay.classList.add('hide');
+      wrap.classList.remove('show');
+      setTimeout(()=>{ overlay.remove(); wrap.innerHTML=''; goTo(3); }, 550);
+    }, 1300);
+  }, 1100);
+}
+
+/* ══════════════════════════
+   CONFETTI
+══════════════════════════ */
+function startConfetti(){
+  const wrap=document.getElementById('confetti');
+  const colors=['#e8799a','#f7b8cc','#f5c97a','#c4aee8','#7adbc4','#ffffff'];
+  wrap.innerHTML='';
+  for(let i=0;i<90;i++){
+    const c=document.createElement('div');c.className='confetti-piece';
+    const w=Math.random()*10+5;
+    c.style.cssText=`left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};width:${w}px;height:${w*(Math.random()+.5)}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${Math.random()*2.5+1.5}s;animation-delay:${Math.random()*1.5}s;`;
+    wrap.appendChild(c);
+  }
+  setTimeout(()=>wrap.innerHTML='',5500);
+}
+
+/* ── Reveal lines stagger ── */
+function scheduleRevealLines(){
+  ['rl1','rl3','rl5','rl7','rl9'].forEach((id,i)=>{
+    setTimeout(()=>{ const el=document.getElementById(id); if(el) el.classList.add('in'); }, 900+i*550);
+  });
+}
+
+/* ══════════════════════════
+   RUNNING GUY (S6)
+══════════════════════════ */
+function startRunner(){
+  const unit = document.getElementById('runner-unit');
+  const btn  = document.getElementById('btn-s6');
+
+  // Reset
+  unit.style.animation = 'none';
+  btn.style.display = 'none';
+  btn.classList.remove('in');
+
+  // Restart animation next frame
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      unit.style.animation = '';
+      // Runner takes 7s to cross; show button after it exits
+      setTimeout(()=>{
+        btn.style.display = 'inline-flex';
+        setTimeout(()=>btn.classList.add('in'), 60);
+      }, 11200);
+    });
+  });
+}
+</script>
+</body>
+</html>
